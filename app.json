@@ -33,12 +33,7 @@
     },
     "plugins": [
       "expo-router",
-      "react-native-vision-camera",
-      {
-        "cameraPermissionText": "Guidedog needs access to your Camera.",
-        "enableMicrophonePermission": true,
-        "microphonePermissionText": "Guidedog needs access to your Microphone."
-      }
+      "react-native-vision-camera"
     ],
     "experiments": {
       "typedRoutes": true
