@@ -4,32 +4,39 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "prebuild": "cd ios && pod install"
   },
   "jest": {
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo/config-plugins": "^8.0.10",
     "@expo/vector-icons": "^14.0.2",
     "@react-native-voice/voice": "^3.2.4",
     "@react-navigation/native": "^6.0.2",
     "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs": "^4.21.0",
-    "expo": "~51.0.28",
+    "@wdragon/react-native-voice": "^3.3.11",
+    "expo": "^51.0.38",
+    "expo-av": "~14.0.7",
     "expo-camera": "~15.0.16",
-    "expo-constants": "^16.0.2",
+    "expo-constants": "~16.0.2",
+    "expo-dev-client": "~4.0.28",
     "expo-font": "~12.0.9",
-    "expo-haptics": "^13.0.1",
+    "expo-haptics": "~13.0.1",
     "expo-linking": "~6.3.1",
+    "expo-modules-autolinking": "^1.11.3",
     "expo-router": "~3.5.23",
-    "expo-speech": "^12.0.2",
+    "expo-speech": "~12.0.2",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
     "expo-web-browser": "~13.0.3",
+    "pod-install": "^0.2.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.5",
@@ -41,8 +48,9 @@
     "react-native-vision-camera-v3-image-labeling": "^1.5.0",
     "react-native-voice": "^0.3.0",
     "react-native-web": "~0.19.10",
+    "react-navigation": "^5.0.0",
     "tesseract.js": "^5.1.1",
-    "expo-dev-client": "~4.0.28"
+    "vision-camera-image-labeler": "^0.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

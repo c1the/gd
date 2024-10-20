@@ -26,7 +26,8 @@
       },
       "permissions": [
         "android.permission.CAMERA"
-      ]
+      ],
+      "package": "com.guidedog129.guidedog"
     },
     "web": {
       "bundler": "metro",
