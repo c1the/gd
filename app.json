@@ -16,9 +16,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
-        "NSSpeechRecognitionUsageDescription": "This app uses speech recognition to convert your speech to text.",
-        "NSCameraUsageDescription": "This app uses the camera to let user put a photo in his profile page."
-      },
+        "NSSpeechRecognitionUsageDescription": "This app uses speech recognition to convert your speech to text."
+            },
       "bundleIdentifier": "com.guidedog129.guidedog"
     },
     "android": {
