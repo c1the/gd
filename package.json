@@ -48,6 +48,7 @@
     "react-native-vision-camera-v3-image-labeling": "^1.5.0",
     "react-native-voice": "^0.3.0",
     "react-native-web": "~0.19.10",
+    "react-native-worklets-core": "^1.3.3",
     "react-navigation": "^5.0.0",
     "tesseract.js": "^5.1.1",
     "vision-camera-image-labeler": "^0.1.6"

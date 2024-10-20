@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Camera } from 'expo-camera'; 
 import * as tf from '@tensorflow/tfjs';
@@ -8,11 +8,12 @@ import Voice from '@react-native-voice/voice';
 import Tesseract from 'tesseract.js'; 
 import * as Haptics from 'expo-haptics'; 
 
-const Create = () => { // Accept a prop for setting the log
+const Create = () => {
   const cameraRef = useRef(null);
   const [hasPermission, setHasPermission] = useState(null);
   const [model, setModel] = useState(null);
   const [isListening, setIsListening] = useState(false);
+  const [cameraType, setCameraType] = useState(Camera.Constants.Type.back); // For camera switching
 
   useEffect(() => {
     const getPermissions = async () => {
@@ -111,6 +112,14 @@ const Create = () => { // Accept a prop for setting the log
     });
   };
 
+  const toggleCameraType = () => {
+    setCameraType((current) => (
+      current === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back
+    ));
+  };
+
   if (hasPermission === null) {
     return <View />;
   }
@@ -122,6 +131,7 @@ const Create = () => { // Accept a prop for setting the log
     <View style={styles.container}>
       <Camera
         style={styles.camera}
+        type={cameraType}  // Toggle between front and back camera
         ref={cameraRef}
         accessibilityLabel="Camera view"
         accessibilityHint="The camera will detect objects or scan text."
@@ -139,6 +149,9 @@ const Create = () => { // Accept a prop for setting the log
       >
         {isListening ? "Listening..." : "Listening..."}
       </Text>
+      <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
+        <Text style={styles.buttonText}>Flip Camera</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -166,6 +179,18 @@ const styles = StyleSheet.create({
     right: 20,
     textAlign: 'center',
     color: 'white',
+  },
+  button: {
+    position: 'absolute',
+    bottom: 100,
+    left: '40%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
   },
 });
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
-import { Camera, useCameraDevice, useFrameProcessor } from 'react-native-vision-camera';
+import { Camera, useCameraDevice, useCameraPermissions, useFrameProcessor } from 'react-native-vision-camera';
 import { useImageLabeler } from 'react-native-vision-camera-v3-image-labeling';
 import Tts from 'react-native-tts';
 import Constants from 'expo-constants';
@@ -8,35 +8,35 @@ import Voice from '@react-native-voice/voice';
 
 const Explore = () => {
   const [cameraActive, setCameraActive] = useState(false);
+  const [lastPositions, setLastPositions] = useState(new Map());
+
+  // Get the camera device (back camera in this case)
   const device = useCameraDevice('back');
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const options = { minConfidence: 0.1 };
   const { scanImage } = useImageLabeler(options);
 
-  const [lastPositions, setLastPositions] = useState(new Map());
-
+  // Frame processor function for object detection
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     const detectedObjects = scanImage(frame);
     
-    // Process detected objects
     const currentPositions = new Map();
     detectedObjects.forEach((obj) => {
       if (obj.label === 'car') {
         const currentPosition = { x: obj.boundingBox.x, y: obj.boundingBox.y };
-        currentPositions.set(obj.id, currentPosition); // Store current position for this car
+        currentPositions.set(obj.id, currentPosition);
 
-        // Check if this car was detected in the previous frame
         const lastPosition = lastPositions.get(obj.id);
         if (lastPosition) {
           const distanceMoved = calculateDistance(lastPosition, currentPosition);
-          if (distanceMoved > 20) { // Set a threshold for movement detection
+          if (distanceMoved > 20) {
             notifyUser('Car approaching from nearby!');
           }
         }
       }
     });
 
-    // Update last positions with current positions for the next frame
     setLastPositions(currentPositions);
   }, []);
 
@@ -46,21 +46,21 @@ const Explore = () => {
 
   const notifyUser = (message) => {
     Alert.alert('Warning', message);
-    Tts.speak(message);  // Text-to-speech 
+    Tts.speak(message);
   };
 
   const handleActivateNavigation = () => {
     Tts.setDefaultLanguage('en-US');
-    Tts.setDucking(true);  // Lowers music volume while TTS is playing
+    Tts.setDucking(true);
     setCameraActive(true);
     Tts.speak("Please point your phone both ways before crossing.");
-    startListening();  // Start voice recognition when navigation is activated
+    startListening();
   };
 
   const handleExitNavigation = () => {
     setCameraActive(false);
-    stopListening();  // Stop voice recognition when navigation is exited
-    setLastPositions(new Map()); // Clear positions when exiting
+    stopListening();
+    setLastPositions(new Map());
   };
 
   const startListening = async () => {
@@ -86,17 +86,34 @@ const Explore = () => {
     } catch (error) {
       console.error(error);
     }
-    Voice.removeAllListeners();  // Clean up listeners
+    Voice.removeAllListeners();
   };
 
+  // Request camera permission when the component mounts
   useEffect(() => {
-    // Start listening for voice commands immediately when the app loads
-    startListening();
-    
+    const requestPermissions = async () => {
+      const cameraStatus = await requestCameraPermission();
+      if (!cameraStatus.granted) {
+        Alert.alert('Permission Denied', 'Camera permissions are required to use this feature.');
+      }
+    };
+
+    requestPermissions();
+
     return () => {
-      stopListening(); // Ensure cleanup on component unmount
+      stopListening(); // Clean up voice listeners when component unmounts
     };
   }, []);
+
+  // If camera permission is not granted, show a placeholder message
+  if (!cameraPermission?.granted) {
+    return <Text>Requesting camera permissions...</Text>;
+  }
+
+  // If the device is still loading, show a loading message
+  if (device == null) {
+    return <Text>Loading camera...</Text>;
+  }
 
   return (
     <View style={styles.container}>
