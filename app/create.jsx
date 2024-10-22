@@ -1,197 +1,118 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
-import { Camera } from 'expo-camera'; 
-import * as tf from '@tensorflow/tfjs';
-import * as cocoSsd from '@tensorflow-models/coco-ssd'; 
-import * as Speech from 'expo-speech'; 
-import Voice from '@react-native-voice/voice'; 
-import Tesseract from 'tesseract.js'; 
-import * as Haptics from 'expo-haptics'; 
+import React, { useState, useRef, useEffect } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { Camera, useCameraDevice } from "react-native-vision-camera";
+import { PhotoRecognizer } from "react-native-vision-camera-text-recognition";
+import * as Speech from 'expo-speech';  // Import expo-speech
+import { useFocusEffect } from '@react-navigation/native';
 
-const Create = () => {
-  const cameraRef = useRef(null);
-  const [hasPermission, setHasPermission] = useState(null);
-  const [model, setModel] = useState(null);
-  const [isListening, setIsListening] = useState(false);
-  const [cameraType, setCameraType] = useState(Camera.Constants.Type.back); // For camera switching
+function App() {
+  const device = useCameraDevice('back');
+  const camera = useRef(null);  // Ref for the camera
+  const [scannedText, setScannedText] = useState('Tap to capture...');  // State to store the scanned text
+  const [isScanning, setIsScanning] = useState(false);  // State to track if scanning is active
+  const [isCameraActive, setIsCameraActive] = useState(true); // Track camera active state
 
   useEffect(() => {
-    const getPermissions = async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
+    const requestCameraPermission = async () => {
+      const permission = await Camera.requestCameraPermission();
+      if (permission === 'denied') {
+        console.error('Camera permission denied');
+      }
     };
-
-    const loadModel = async () => {
-      await tf.ready();
-      const loadedModel = await cocoSsd.load();
-      setModel(loadedModel);
-    };
-
-    getPermissions();
-    loadModel();
-
-    Voice.onSpeechResults = onSpeechResults; 
-    startListening();
-
-    return () => {
-      stopListening();
-      Voice.destroy().then(Voice.removeAllListeners); 
-    };
+    requestCameraPermission();
   }, []);
 
-  const onSpeechResults = (event) => {
-    const { value } = event;
-    if (value.includes("take photo")) {
-      handleObjectDetection();
-    } else if (value.includes("scan text")) {
-      handleTextScanning();
+  useFocusEffect(
+    React.useCallback(() => {
+      // Activate the camera when the screen is focused
+      setIsCameraActive(true);
+
+      return () => {
+        // Deactivate the camera when the screen is unfocused
+        setIsCameraActive(false);
+        Speech.stop();  // Stop any ongoing speech
+      };
+    }, [])
+  );
+
+  const handleCapturePhoto = async () => {
+    if (camera.current) {
+      if (isScanning) {
+        // If currently scanning, stop the scanning
+        setIsScanning(false);
+        setScannedText('Tap to capture...');  // Reset the scanned text
+        Speech.stop();  // Stop any ongoing speech
+        console.log('Scanning stopped.');  // Log message
+      } else {
+        // Start scanning
+        try {
+          setIsScanning(true);  // Set scanning to active
+          const photo = await camera.current.takePhoto();  // Capture photo
+          const result = await PhotoRecognizer({
+            uri: photo.path,  // Use the captured photo's path
+            orientation: "portrait",  // Assuming portrait mode, adjust if necessary
+          });
+
+          // Extract the recognized text from the result
+          const recognizedText = result.resultText;  // Access resultText
+          console.log(result);  // Log the entire result object for debugging
+          setScannedText(recognizedText);  // Display the recognized text
+
+          // Speak the recognized text
+          const logMessage = `Recognized text: ${recognizedText || 'no text found'}`;
+          console.log(logMessage);  // Log the log message for debugging
+          Speech.speak(logMessage);  // Read the log message aloud
+
+        } catch (error) {
+          console.error("Error taking photo:", error);
+        }
+      }
     }
   };
-
-  const startListening = async () => {
-    setIsListening(true);
-    try {
-      await Voice.start('en-US');
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const stopListening = async () => {
-    setIsListening(false);
-    try {
-      await Voice.stop();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleObjectDetection = async () => {
-    if (cameraRef.current && model) {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.5 });
-      const imgB64 = await fetch(photo.uri);
-      const imageTensor = tf.browser.fromPixels(imgB64);
-
-      const predictions = await model.detect(imageTensor);
-      readOutLoud(predictions);
-      
-      Haptics.impactAsync();
-      stopListening();
-      startListening();
-    }
-  };
-
-  const handleTextScanning = async () => {
-    if (cameraRef.current) {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.5 });
-      Tesseract.recognize(photo.uri, 'eng', {
-        logger: info => console.log(info),
-      }).then(({ data: { text } }) => {
-        readOutLoudText(text);
-        Haptics.impactAsync();
-      }).catch(error => {
-        console.error(error);
-      });
-    }
-  };
-
-  const readOutLoud = (predictions) => {
-    const detectedItems = predictions.map(pred => pred.class).join(', ');
-    Speech.speak(`Detected objects: ${detectedItems}`, {
-      language: 'en',
-      pitch: 1,
-      rate: 1,
-    });
-  };
-
-  const readOutLoudText = (text) => {
-    Speech.speak(`Scanned text: ${text}`, {
-      language: 'en',
-      pitch: 1,
-      rate: 1,
-    });
-  };
-
-  const toggleCameraType = () => {
-    setCameraType((current) => (
-      current === Camera.Constants.Type.back
-        ? Camera.Constants.Type.front
-        : Camera.Constants.Type.back
-    ));
-  };
-
-  if (hasPermission === null) {
-    return <View />;
-  }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
 
   return (
     <View style={styles.container}>
-      <Camera
-        style={styles.camera}
-        type={cameraType}  // Toggle between front and back camera
-        ref={cameraRef}
-        accessibilityLabel="Camera view"
-        accessibilityHint="The camera will detect objects or scan text."
-      />
-      <Text
-        accessibilityLabel="Instructions for taking a photo or scanning text"
-        accessibilityHint="Say 'take photo' or 'scan text'"
-        style={styles.instructions}
-      >
-        Say "take photo" to capture an image or "scan text" to scan text.
-      </Text>
-      <Text
-        accessibilityLabel="Listening status"
-        style={styles.voiceStatus}
-      >
-        {isListening ? "Listening..." : "Listening..."}
-      </Text>
-      <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
-        <Text style={styles.buttonText}>Flip Camera</Text>
+      {!!device && isCameraActive && (
+        <Camera
+          ref={camera}  // Camera ref
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={true}
+          photo={true}  // Enable photo capture
+        />
+      )}
+      <TouchableOpacity style={StyleSheet.absoluteFill} onPress={handleCapturePhoto}>
+        <View style={styles.textContainer}>
+          <Text style={styles.text}>
+            {scannedText}
+          </Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  camera: {
-    flex: 1,
-  },
-  instructions: {
+  textContainer: {
     position: 'absolute',
-    bottom: 50,
-    left: 20,
-    right: 20,
-    textAlign: 'center',
-    color: 'white',
-  },
-  voiceStatus: {
-    position: 'absolute',
-    bottom: 80,
-    left: 20,
-    right: 20,
-    textAlign: 'center',
-    color: 'white',
-  },
-  button: {
-    position: 'absolute',
-    bottom: 100,
-    left: '40%',
+    top: '50%',
+    left: '10%',
+    right: '10%',
+    transform: [{ translateY: -50 }],
     backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 10,
     borderRadius: 5,
   },
-  buttonText: {
+  text: {
     color: 'white',
     fontSize: 18,
+    textAlign: 'center',
   },
 });
 
-export default Create;
+export default App;

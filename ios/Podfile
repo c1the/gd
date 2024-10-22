@@ -1,4 +1,5 @@
 platform :ios, '11.0'
+project 'guidedog/guidedog.xcodeproj'
 
 target 'guidedog' do
   # Pods for guidedog
@@ -8,8 +9,9 @@ target 'guidedog' do
   pod 'react-native-screens', :path => '../node_modules/react-native-screens'
   pod 'react-native-safe-area-context', :path => '../node_modules/react-native-safe-area-context'
   pod 'VisionCamera', :path => '../node_modules/react-native-vision-camera'
-  pod 'VisionCameraImageLabeling', :path => '../node_modules/react-native-vision-camera-v3-image-labeling'
   pod 'react-native-voice', :path => '../node_modules/react-native-voice'
   pod 'react-native-worklets-core', :path => '../node_modules/react-native-worklets-core'  # Add this line
+  pod 'react-native-vision-camera-text-recognition', :path => '../node_modues/react-native-vision-camera-text-recognition'
+  pod 'react-native-vision-camera-image-labeler', :path => '..node_modules/react-native-vision-camera-image-labeler'
   # Add any other dependencies here
 end

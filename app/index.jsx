@@ -1,12 +1,15 @@
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5
 
 const Index = () => {
   const navigation = useNavigation(); // Store the navigation object
 
   return (
     <View style={styles.container}>
+      <FontAwesome5 name="dog" size={50} color="#128cbe" style={styles.icon} />
+
       <Text style={styles.title}>Welcome to Guide Dog!</Text>
       <Text style={styles.subTitle}>How can we help?</Text>
 
@@ -32,6 +35,12 @@ const Index = () => {
           <Text style={styles.buttonText}>Tutorial</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => navigation.navigate('object')} // Use the stored navigation object
+        >
+          <Text style={styles.buttonText}>Object</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -42,18 +51,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 100,
+    paddingTop: 50,
     backgroundColor: '#f0f8ff',
+  },
+  icon: {
+    marginBottom: 20, // Add some margin below the icon
   },
   title: {
     fontSize: 24,
     marginBottom: 5,
-    color: '#000',
+    color: '#0b4d68',
   },
   subTitle: {
     fontSize: 24,
     marginBottom: 20,
-    color: '#000',
+    color: '#0b4d68',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -73,7 +85,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 25,
     textAlign: 'center',
   },
 });

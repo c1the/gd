@@ -1,62 +1,62 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import React from 'react';
 import { AntDesign, Feather } from '@expo/vector-icons';
+import { CommonActions } from '@react-navigation/native'; // Import CommonActions
 import TabBarButton from './TabBarButton';
 
 const TabBar = ({ state, descriptors, navigation }) => {
-    // Define colors for the active and inactive tab states
-    const primaryColor = '#0891b2'; // Color for the focused tab
-    const greyColor = '#737373'; // Color for unfocused tabs
+    const primaryColor = '#0891b2';
+    const greyColor = '#737373';
 
     return (
         <View style={styles.tabbar}>
-            {/* Map over the routes in the state */}
             {state.routes.map((route, index) => {
-                const { options } = descriptors[route.key]; // Get the options for the current route
+                const { options } = descriptors[route.key];
                 const label =
                     options.tabBarLabel !== undefined
-                        ? options.tabBarLabel // Use provided tabBarLabel if available
+                        ? options.tabBarLabel
                         : options.title !== undefined
-                        ? options.title // Use title if tabBarLabel is not available
-                        : route.name; // Fallback to route name
+                        ? options.title
+                        : route.name;
 
-                // Exclude specific routes from the tab bar
                 if (['_sitemap', '+not-found'].includes(route.name)) return null;
 
-                const isFocused = state.index === index; // Check if the current tab is focused
+                const isFocused = state.index === index;
 
-                // Function to handle tab press events
                 const onPress = () => {
                     const event = navigation.emit({
                         type: 'tabPress',
-                        target: route.key, // Targeting the specific tab
+                        target: route.key,
                         canPreventDefault: true,
                     });
 
-                    // Navigate only if the tab is not already focused and no default prevention occurred
                     if (!isFocused && !event.defaultPrevented) {
-                        navigation.navigate(route.name, route.params); // Navigate to the route
+                        navigation.dispatch(
+                            CommonActions.reset({
+                                index: 0,
+                                routes: [{ name: route.name }],
+                            })
+                        );
                     }
                 };
 
-                // Function to handle long press events on tabs
                 const onLongPress = () => {
                     navigation.emit({
                         type: 'tabLongPress',
-                        target: route.key, // Targeting the specific tab for long press
+                        target: route.key,
                     });
                 };
 
                 return (
                     <TabBarButton 
-                        key={route.name} // Unique key for each tab button
+                        key={route.name}
                         style={styles.tabbarItem}
-                        onPress={onPress} // Assign press handler
-                        onLongPress={onLongPress} // Assign long press handler
-                        isFocused={isFocused} // Pass focused state
-                        routeName={route.name} // Pass route name
-                        color={isFocused ? primaryColor : greyColor} // Set color based on focus
-                        label={label} // Set the label for the tab
+                        onPress={onPress}
+                        onLongPress={onLongPress}
+                        isFocused={isFocused}
+                        routeName={route.name}
+                        color={isFocused ? primaryColor : greyColor}
+                        label={label}
                     />
                 );
             })}
@@ -66,20 +66,19 @@ const TabBar = ({ state, descriptors, navigation }) => {
 
 const styles = StyleSheet.create({
     tabbar: {
-        position: 'absolute', // Position the tab bar at the bottom
+        position: 'absolute',
         bottom: 25,
-        flexDirection: 'row', // Arrange tabs in a row
-        justifyContent: 'space-between', // Space tabs evenly
-        alignItems: 'center', // Center items vertically
-        backgroundColor: '#f0f8ff', // Background color of the tab bar
-        marginHorizontal: 20, // Horizontal margin for spacing
-        paddingVertical: 15, // Vertical padding for spacing
-        borderRadius: 25, // Rounded corners
-        borderCurve: 'continuous', // (Note: this prop doesn't exist in React Native, might be a typo)
-        shadowColor: 'black', // Shadow color for elevation effect
-        shadowOffset: { width: 0, height: 10 }, // Shadow offset
-        shadowRadius: 10, // Shadow blur radius
-        shadowOpacity: 0.1 // Shadow opacity
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#f0f8ff',
+        marginHorizontal: 20,
+        paddingVertical: 15,
+        borderRadius: 25,
+        shadowColor: 'black',
+        shadowOffset: { width: 0, height: 10 },
+        shadowRadius: 10,
+        shadowOpacity: 0.1
     }
 });
 

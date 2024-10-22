@@ -10,16 +10,21 @@ const _layout = () => {
       />
       <Tabs.Screen
         name="create"
-        options={{ title: "Recognition" }}
+        options={{ title: "Text" }}
       />
       <Tabs.Screen
         name="explore"
         options={{ title: "Navigation" }}
       />
       <Tabs.Screen
+        name="object"
+        options={{ title: "Object" }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{ title: "Tutorial" }}
       />
+      
     </Tabs>
   );
 };
