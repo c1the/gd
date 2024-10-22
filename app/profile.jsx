@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     paddingTop: Constants.statusBarHeight,
-    paddingBottom: 100,  // Add padding to prevent content from being covered by the tab bar
+    paddingBottom: 100,  
   },
   title: {
     fontSize: 24,

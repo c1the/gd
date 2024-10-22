@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { useCameraDevice } from 'react-native-vision-camera';
 import { Camera } from 'react-native-vision-camera-image-labeler';
-import * as Speech from 'expo-speech';  // Import expo-speech
+import * as Speech from 'expo-speech';  
 import { useFocusEffect } from '@react-navigation/native';
 
 function Explore() {
   const [data, setData] = useState(null);
-  const [warningSpoken, setWarningSpoken] = useState(false);  // Track if warning has been spoken
-  const [isCooldown, setIsCooldown] = useState(false);  // State for 5-second cooldown
+  const [warningSpoken, setWarningSpoken] = useState(false);  
+  const [isCooldown, setIsCooldown] = useState(false);  
   const device = useCameraDevice('back');
-  const [isCameraActive, setIsCameraActive] = useState(true); // Track camera active state
+  const [isCameraActive, setIsCameraActive] = useState(true); 
 
   useEffect(() => {
     const requestCameraPermission = async () => {
@@ -24,32 +24,29 @@ function Explore() {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Activate the camera when the screen is focused
       setIsCameraActive(true);
       console.log('Camera activated');
 
       return () => {
-        // Deactivate the camera when the screen is unfocused
         setIsCameraActive(false);
-        Speech.stop();  // Stop any ongoing speech
+        Speech.stop();  
         console.log('Camera deactivated');
       };
     }, [])
   );
 
   useEffect(() => {
-    if (data && !isCooldown) {  // Only proceed if not in cooldown
+    if (data && !isCooldown) {  
       const vehicleDetected = data.some(item => item.label === 'Vehicle' && item.confidence > 0.7);
       if (vehicleDetected) {
         Speech.speak('Warning, a vehicle is approaching!');
-        setIsCooldown(true);  // Start the cooldown
+        setIsCooldown(true);  
         setWarningSpoken(true);
 
-        // Set a 5-second timeout before allowing further detection
         setTimeout(() => {
-          setIsCooldown(false);  // Reset cooldown after 5 seconds
-          setWarningSpoken(false);  // Reset spoken warning
-        }, 5000);  // 5 seconds
+          setIsCooldown(false);  
+          setWarningSpoken(false);  
+        }, 5000);  
       }
     }
   }, [data, isCooldown]);
@@ -65,7 +62,7 @@ function Explore() {
             minConfidence: 0.1
           }}
           callback={(d) => setData(d)}
-          onError={(error) => console.error('Camera error:', error)}  // Log camera errors
+          onError={(error) => console.error('Camera error:', error)}  
         />
       ) : (
         <Text>Loading camera...</Text>

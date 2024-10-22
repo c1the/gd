@@ -2,22 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useCameraDevice } from 'react-native-vision-camera';
 import { Camera } from 'react-native-vision-camera-image-labeler';
-import * as Speech from 'expo-speech';  // Import expo-speech
+import * as Speech from 'expo-speech'; 
 
 function App() {
   const [data, setData] = useState(null);
-  const [detectedLabel, setDetectedLabel] = useState('Tap to capture...');  // State to store detected label
+  const [detectedLabel, setDetectedLabel] = useState('Tap to capture...');  
   const device = useCameraDevice('back');
 
-  // Function to handle screen tap and speak the highest confidence detection
   const handleTap = () => {
     if (data && data.length > 0) {
       const highestConfidenceItem = data.reduce((prev, current) => (prev.confidence > current.confidence) ? prev : current);
       const label = `${highestConfidenceItem.label}`;
-      setDetectedLabel(label);  // Update the detected label on the screen
-      Speech.speak(label);  // Speak the detected label
+      setDetectedLabel(label);  
+      Speech.speak(label);  
     } else {
-      setDetectedLabel('Nothing detected');  // Show "Nothing detected" if no data is available
+      setDetectedLabel('Nothing detected');  
       Speech.speak('Nothing detected');
     }
   };
@@ -32,13 +31,13 @@ function App() {
           options={{
             minConfidence: 0.1
           }}
-          callback={(d) => setData(d)}  // Continuously update data with new detections
+          callback={(d) => setData(d)}  
         />
       )}
       <TouchableOpacity style={StyleSheet.absoluteFill} onPress={handleTap}>
         <View style={styles.textContainer}>
           <Text style={styles.text}>
-            {detectedLabel}  {/* Display the detected label */}
+            {detectedLabel} 
           </Text>
         </View>
       </TouchableOpacity>

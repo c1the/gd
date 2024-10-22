@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'; 
 
 const Index = () => {
-  const navigation = useNavigation(); // Store the navigation object
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -16,28 +16,28 @@ const Index = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
           style={styles.button} 
-          onPress={() => navigation.navigate('create')} // Use the stored navigation object
+          onPress={() => navigation.navigate('create')} 
         >
           <Text style={styles.buttonText}>Photo Recognition</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.button} 
-          onPress={() => navigation.navigate('explore')} // Use the stored navigation object
+          onPress={() => navigation.navigate('explore')}
         >
           <Text style={styles.buttonText}>Navigation</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.button} 
-          onPress={() => navigation.navigate('profile')} // Use the stored navigation object
+          onPress={() => navigation.navigate('profile')}
         >
           <Text style={styles.buttonText}>Tutorial</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.button} 
-          onPress={() => navigation.navigate('object')} // Use the stored navigation object
+          onPress={() => navigation.navigate('object')} 
         >
           <Text style={styles.buttonText}>Object</Text>
         </TouchableOpacity>
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f8ff',
   },
   icon: {
-    marginBottom: 20, // Add some margin below the icon
+    marginBottom: 20, 
   },
   title: {
     fontSize: 24,

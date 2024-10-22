@@ -2,15 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Camera, useCameraDevice } from "react-native-vision-camera";
 import { PhotoRecognizer } from "react-native-vision-camera-text-recognition";
-import * as Speech from 'expo-speech';  // Import expo-speech
+import * as Speech from 'expo-speech';  
 import { useFocusEffect } from '@react-navigation/native';
 
 function App() {
   const device = useCameraDevice('back');
-  const camera = useRef(null);  // Ref for the camera
-  const [scannedText, setScannedText] = useState('Tap to capture...');  // State to store the scanned text
-  const [isScanning, setIsScanning] = useState(false);  // State to track if scanning is active
-  const [isCameraActive, setIsCameraActive] = useState(true); // Track camera active state
+  const camera = useRef(null);  
+  const [scannedText, setScannedText] = useState('Tap to capture...');  
+  const [isScanning, setIsScanning] = useState(false); 
+  const [isCameraActive, setIsCameraActive] = useState(true); 
 
   useEffect(() => {
     const requestCameraPermission = async () => {
@@ -24,13 +24,11 @@ function App() {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Activate the camera when the screen is focused
       setIsCameraActive(true);
 
       return () => {
-        // Deactivate the camera when the screen is unfocused
         setIsCameraActive(false);
-        Speech.stop();  // Stop any ongoing speech
+        Speech.stop(); 
       };
     }, [])
   );
@@ -38,30 +36,26 @@ function App() {
   const handleCapturePhoto = async () => {
     if (camera.current) {
       if (isScanning) {
-        // If currently scanning, stop the scanning
         setIsScanning(false);
-        setScannedText('Tap to capture...');  // Reset the scanned text
-        Speech.stop();  // Stop any ongoing speech
-        console.log('Scanning stopped.');  // Log message
+        setScannedText('Tap to capture...');  
+        Speech.stop();  
+        console.log('Scanning stopped.');  
       } else {
-        // Start scanning
         try {
-          setIsScanning(true);  // Set scanning to active
-          const photo = await camera.current.takePhoto();  // Capture photo
+          setIsScanning(true);  
+          const photo = await camera.current.takePhoto();  
           const result = await PhotoRecognizer({
-            uri: photo.path,  // Use the captured photo's path
-            orientation: "portrait",  // Assuming portrait mode, adjust if necessary
+            uri: photo.path,  
+            orientation: "portrait",  
           });
 
-          // Extract the recognized text from the result
-          const recognizedText = result.resultText;  // Access resultText
-          console.log(result);  // Log the entire result object for debugging
-          setScannedText(recognizedText);  // Display the recognized text
+          const recognizedText = result.resultText;  
+          console.log(result);  
+          setScannedText(recognizedText);  
 
-          // Speak the recognized text
           const logMessage = `Recognized text: ${recognizedText || 'no text found'}`;
-          console.log(logMessage);  // Log the log message for debugging
-          Speech.speak(logMessage);  // Read the log message aloud
+          console.log(logMessage); 
+          Speech.speak(logMessage); 
 
         } catch (error) {
           console.error("Error taking photo:", error);
@@ -74,11 +68,11 @@ function App() {
     <View style={styles.container}>
       {!!device && isCameraActive && (
         <Camera
-          ref={camera}  // Camera ref
+          ref={camera}  
           style={StyleSheet.absoluteFill}
           device={device}
           isActive={true}
-          photo={true}  // Enable photo capture
+          photo={true}  
         />
       )}
       <TouchableOpacity style={StyleSheet.absoluteFill} onPress={handleCapturePhoto}>
