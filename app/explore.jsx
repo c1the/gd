@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Vibration } from 'react-native';
 import { useCameraDevice } from 'react-native-vision-camera';
 import { Camera } from 'react-native-vision-camera-image-labeler';
 import * as Speech from 'expo-speech';  
@@ -36,10 +36,11 @@ function Explore() {
   );
 
   useEffect(() => {
-    if (data && !isCooldown) {  
+    if (data && !isCooldown && !warningSpoken) {  
       const vehicleDetected = data.some(item => item.label === 'Vehicle' && item.confidence > 0.7);
       if (vehicleDetected) {
         Speech.speak('Warning, a vehicle is approaching!');
+        Vibration.vibrate(500); 
         setIsCooldown(true);  
         setWarningSpoken(true);
 
@@ -49,7 +50,7 @@ function Explore() {
         }, 5000);  
       }
     }
-  }, [data, isCooldown]);
+  }, [data, isCooldown, warningSpoken]);
 
   return (
     <View style={styles.container}>
